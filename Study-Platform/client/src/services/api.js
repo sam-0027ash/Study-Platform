@@ -1,80 +1,57 @@
 import axios from "axios";
 
+/* =========================
+   AXIOS INSTANCE
+========================= */
+
 const API = axios.create({
-
-  baseURL:
-    import.meta.env.VITE_API_URL,
-
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
-
 });
 
 /* =========================
    REQUEST INTERCEPTOR
+   (AUTO ATTACH TOKEN)
 ========================= */
 
 API.interceptors.request.use(
-
   (config) => {
+    const token = localStorage.getItem("token");
 
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
-    // AUTOMATICALLY ADD TOKEN
     if (token) {
-
-      config.headers.Authorization =
-        `Bearer ${token}`;
-
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
-
   },
-
   (error) => {
-
     return Promise.reject(error);
-
   }
-
 );
 
 /* =========================
    RESPONSE INTERCEPTOR
+   (HANDLE AUTH ERRORS)
 ========================= */
 
 API.interceptors.response.use(
-
   (response) => response,
-
   (error) => {
+    const status = error.response?.status;
 
-    // AUTO LOGOUT IF TOKEN INVALID
-    if (
-      error.response?.status === 401
-    ) {
+    // AUTO LOGOUT ON UNAUTHORIZED
+    if (status === 401 || status === 403) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
-      localStorage.removeItem(
-        "token"
-      );
-
-      localStorage.removeItem(
-        "user"
-      );
-
-      // REDIRECT TO LOGIN
-      window.location.href =
-        "/login";
-
+      // avoid redirect loop issues
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(error);
-
   }
-
 );
 
 export default API;
