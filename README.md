@@ -10,6 +10,8 @@ A full-stack web application where users can upload, manage, and share study res
 
 ⚙️ Backend: https://study-platform-backend-dmb1.onrender.com
 
+[The backend will be a little slow to load. The Render needs to start up again. Kindly be patient.]
+
 ---
 
 🛠️ Tech Stack
